@@ -1,4 +1,4 @@
-# 一作业要求
+# 一、作业要求
 
 作业：编程实践，使用 Java API 操作 HBase
 主要实践建表、插入数据、删除数据、查询等功能。要求建立一个如下所示的表：
@@ -17,13 +17,13 @@
 - 作业提交链接： https://jinshuju.net/f/rWuZQM
   作业截止日期：8 月 1 日 23:59 前
 
-# 二实现过程
+# 二、实现过程
 
 ## 1、安装Hbase
 
 本地安装一个三台机器的Hbase集群分布式环境
 
-1）安装zookeeper3.7.0的集群环境，3台服务器的分布式环境，启动
+1）安装zookeeper3.7.0的集群环境，3台服务器的分布式环境
 
 2）安装Hbase2.4版本，3台服务器的分布式环境
 
@@ -31,7 +31,9 @@
 
 ## 2、编写代码
 
-1）代码包括HBaseConnectionFactory工厂类、HBaseUtil工具类和调用类
+1）代码包括HBaseConnectionFactory工厂类、HBaseUtil工具类
+   HBaseConnectionFactory 工厂类，实现获取HBase Connection和关闭链接的方法
+   HBaseUtil实现创建表、添加数据、删除数据等功能
 
 2）实现简单的创建表格、删除表、添加数据、删除数据、修改数据、查询数据等基本功能
 

@@ -1,5 +1,6 @@
 package com.dd.hbase;
 
+import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.client.*;
 
 import org.apache.hadoop.hbase.TableName;
@@ -38,7 +39,6 @@ public class HBaseUtil {
         return false;
     }
 
-
     /**
      * 创建表
      * @param tableName 创建表的表名称
@@ -51,8 +51,31 @@ public class HBaseUtil {
             return false;
         }
 
+
+
         try {
             Admin admin = conn.getAdmin();
+
+            String []arrTableName = tableName.split(":");
+
+            if( arrTableName.length == 2 ) {
+                String namesapceName = arrTableName[0];
+                NamespaceDescriptor[] allNamespace=admin.listNamespaceDescriptors();
+                boolean isExistNamespace = false;
+                for (NamespaceDescriptor namespaceDes :allNamespace
+                     ) {
+                    if(namespaceDes.getName().equals(namesapceName)) {
+                        isExistNamespace = true;
+                        break;
+                    }
+                }
+                if( !isExistNamespace ) {
+                    admin.createNamespace(NamespaceDescriptor.create(namesapceName).build());
+                    logger.info("{} 空间命名创建成功!",namesapceName);
+                }
+            }
+
+
             TableName table= TableName.valueOf (tableName );
             //表描述器构造器
             TableDescriptorBuilder tdb =TableDescriptorBuilder.newBuilder(table);
@@ -95,7 +118,6 @@ public class HBaseUtil {
                 logger.info("{} 表不存在！", tableName);
                 return false;
             }
-
             Admin admin = conn.getAdmin();
             admin.disableTable(TableName.valueOf( tableName ));
             admin.deleteTable(TableName.valueOf( tableName ));
@@ -125,7 +147,7 @@ public class HBaseUtil {
             logger.info("插入数据[{} {} {} {} ]到表{}中成功！", rowkey, cfName,qualifer, data, tableName);
         }catch (Exception ex){
             logger.info("插入数据[{} {} {} {} ]到表{}中失败！", rowkey, cfName,qualifer, data, tableName);
-            logger.error("异常信息为 {}", ex.getMessage());
+            logger.error("异常信息为 {}", ex.toString());
             return false;
         }
         return true;
@@ -144,7 +166,7 @@ public class HBaseUtil {
             table.put(puts);
             logger.info("批量插入数据到表{}中成功！", tableName);
         }catch (Exception ex){
-            logger.error("批量插入数据到表{}中失败！异常信息为: {}", tableName, ex.getMessage());
+            logger.error("批量插入数据到表{}中失败！异常信息为: {}", tableName,  ex.toString());
             return false;
         }
         return true;
@@ -159,12 +181,16 @@ public class HBaseUtil {
     public static Result getRow(Connection conn, String tableName,String rowkey){
         try {
             Table table = conn.getTable(TableName.valueOf(tableName));
+            if( table == null ) {
+                logger.warn("{}表不存在，插入数据失败");
+                return null;
+            }
             Get get = new Get(Bytes.toBytes(rowkey));
             Result result = table.get(get);
             logger.info("查询数据表{}的rowkey={}数据成功！", tableName, rowkey);
             return result;
         }catch (Exception ex){
-            logger.error("查询数据表{}的 rowkey={}数据失败！异常信息为：{}", tableName, rowkey, ex.getMessage());
+            logger.error("查询数据表{}的 rowkey={}数据失败！异常信息为：{}", tableName, rowkey,  ex.toString());
         }
         return null;
     }
@@ -183,7 +209,7 @@ public class HBaseUtil {
             table.delete(delete);
             logger.info("删除数据表{}的rowkey={}数据成功！", tableName, rowkey);
         }catch (Exception ex){
-            logger.error("查询数据表{}的 rowkey={}数据失败！异常信息为：{}", tableName, rowkey, ex.getMessage());
+            logger.error("查询数据表{}的 rowkey={}数据失败！异常信息为：{}", tableName, rowkey,  ex.toString());
         }
         return true;
     }
@@ -200,7 +226,7 @@ public class HBaseUtil {
             admin.deleteColumnFamily(TableName.valueOf(tableName), Bytes.toBytes(cfName));
             logger.info("删除数据表{} 的列簇{}数据成功！", tableName, cfName);
         }catch (Exception ex){
-            logger.error("删除数据表{} 的列簇{}数据成功！异常信息为：", tableName, cfName, ex.getMessage());
+            logger.error("删除数据表{} 的列簇{}数据成功！异常信息为：", tableName, cfName,  ex.toString());
         }
         return true;
     }
@@ -223,7 +249,7 @@ public class HBaseUtil {
             table.delete(delete);
             logger.info("删除数据表{} 列簇{}的列{}数据成功！", tableName, cfName, cqName);
         }catch (Exception ex){
-            logger.error("删除数据表{} 列簇{}的列{}数据失败！异常信息为：{}", tableName, cfName, cqName, ex.getMessage());
+            logger.error("删除数据表{} 列簇{}的列{}数据失败！异常信息为：{}", tableName, cfName, cqName,  ex.toString());
             return false;
         }
         return true;
@@ -231,13 +257,28 @@ public class HBaseUtil {
 
 
     public static void main(String []args) {
-        Connection conn = HBaseConnectionFactory.getConnection();
-        String tableName = "chenjd:student1";
-        boolean result =  existTable(conn, tableName);
-        System.out.println(tableName + " 表是否存在：" + result );
-        String[] cfs = {"info","score"};
-        createTable(conn, tableName, cfs);
-        HBaseConnectionFactory.closeConn();
+//        Connection conn = HBaseConnectionFactory.getConnection();
+//        String tableName = "chenjd1:student2";
+////        boolean result =  existTable(conn, tableName);
+////        System.out.println(tableName + " 表是否存在：" + result );
+////        String[] cfs = {"info","score"};
+////        createTable(conn, tableName, cfs);
+////        deleteTable(conn, tableName);
+//
+//        String rowkey ="chenjd2";
+//        String cfName = "info";
+//        String qualifer = "name";
+//        String data = "陈健丁2";
+//        putRow(conn, tableName, rowkey,cfName,qualifer,data);
+//
+//        Result result1 = getRow(conn, tableName, rowkey);
+//        System.out.println( result1.toString());
+//
+//        deleteRow(conn, tableName, rowkey);
+//
+//        Result result2 = getRow(conn, tableName, rowkey);
+//        System.out.println( result2.toString());
+//        HBaseConnectionFactory.closeConn();
     }
 
 

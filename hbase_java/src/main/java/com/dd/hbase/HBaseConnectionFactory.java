@@ -5,6 +5,9 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 /**
@@ -14,6 +17,8 @@ import java.io.IOException;
  *
  */
 public class HBaseConnectionFactory {
+
+    private final static Logger logger =  LoggerFactory.getLogger(HBaseConnectionFactory.class);
 
     private static final HBaseConnectionFactory factory = new HBaseConnectionFactory();
     //Hbase配置类
@@ -28,8 +33,8 @@ public class HBaseConnectionFactory {
                 configuration.set("hbase.zookeeper.quorum","hadoop0:2181");
             }
 
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (Exception ex){
+            logger.error("连接Hbase失败，异常信息为：{}", ex.getMessage());
         }
     }
 
@@ -37,8 +42,8 @@ public class HBaseConnectionFactory {
         if (connection==null || connection.isClosed()){
             try{
                 connection = ConnectionFactory.createConnection(configuration);
-            }catch (Exception e){
-                e.printStackTrace();
+            }catch (Exception ex){
+                logger.error("连接Hbase失败，异常信息为：{}", ex.getMessage());
             }
         }
         return connection;
@@ -51,8 +56,8 @@ public class HBaseConnectionFactory {
         if (connection!=null){
             try {
                 connection.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (IOException ex) {
+                logger.error("关闭Hbase链接失败，异常信息为：{}", ex.getMessage());
             }
         }
     }
