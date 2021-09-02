@@ -10,24 +10,56 @@
 
 ## 2、作业要求
 
+```
 倒排索引(Inverted index)，也被称为反向索引。它是文档检索系统中最常用的数据结构。被广泛 地应用于全文搜索引擎。
 
 例子如下，被索引的文件为(0，1，2代表文件名)
 
-\0. "it is what it is"
- \1. "what is it"
- \2. "it is a banana" 我们就能得到下面的反向文件索引: "a": {2}
+0. "it is what it is"
+1. "what is it"
+2. "it is a banana" 
 
+我们就能得到下面的反向文件索引: 
+
+"a": {2}
 "banana": {2}
- "is": {0, 1, 2}
- "it": {0, 1, 2}
- "what": {0, 1} 再加上词频为:
- "a": {(2,1)}
- "banana": {(2,1)}
- "is": {(0,2), (1,1), (2,1)} "it": {(0,2), (1,1), (2,1)} "what": {(0,1), (1,1)}
+"is": {0, 1, 2}
+"it": {0, 1, 2}
+"what": {0, 1} 
+
+再加上词频为:
+"a": {(2,1)}
+"banana": {(2,1)}
+"is": {(0,2), (1,1), (2,1)} 
+"it": {(0,2), (1,1), (2,1)}
+"what": {(0,1), (1,1)}
+```
 
 ## 3、运行结果
 
+代码类为：com.dd.spark.invertedindex.InvertedIndex
+在Idea本地测试运行结果
+不加词频的运行结果
+```
+(a,CompactBuffer(2))
+(it,CompactBuffer(1, 0, 2))
+(banana,CompactBuffer(2))
+(what,CompactBuffer(0, 1))
+(is,CompactBuffer(1, 2, 0))
+```
+加上词频的运行结果
+
+```
+(a,CompactBuffer((2,1)))
+(it,CompactBuffer((1,1), (0,2), (2,1)))
+(banana,CompactBuffer((2,1)))
+(is,CompactBuffer((1,1), (2,1), (0,2)))
+(what,CompactBuffer((0,1), (1,1)))
+```
+
+用spark-submit提交执行
+spark-submit --master  spark://localhost:7077 --class com.dd.spark.invertedindex.InvertedIndex --executor-memory 1g  com.geekbang.bd.chenjd.spark-1.0-SNAPSHOT.jar  data
+执行结果同ide运行结果
 
 
 # 二、作业2
@@ -51,3 +83,5 @@ sparkDistCp hdfs://xxx/source hdfs://xxx/target
  需支持-m max concurrence参数，控制同时copy的最大并发task数
 
 ## 2、运行结果
+代码为：com.dd.spark.distcp.SparkDistCP
+实现递归复制文件目录
